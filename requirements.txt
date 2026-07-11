@@ -1,0 +1,30 @@
+# ==========================================
+# Core Web Framework
+# ==========================================
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+python-dotenv==1.0.1
+
+# ==========================================
+# Database ORM
+# ==========================================
+sqlalchemy==2.0.36
+
+# ==========================================
+# Document Parsing
+# ==========================================
+python-docx==1.1.2
+pdfplumber==0.11.4
+
+# ==========================================
+# Validation & Settings
+# ==========================================
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# ==========================================
+# Optional / Inactive Services (Not used in the simplified backend)
+# ==========================================
+# openai==1.59.9          # Used in app/services/ai_service.py (not active)
+# reportlab==4.2.5        # Used in app/services/export_service.py (not active)

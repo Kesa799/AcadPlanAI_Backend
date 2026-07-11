@@ -1,0 +1,33 @@
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Environment Variables (contains API keys/secrets)
+.env
+
+# Local Databases
+*.db
+*.sqlite3
+
+# Temporary / User Uploads & Outputs
+uploads/*
+!uploads/.gitkeep
+outputs/*
+!outputs/.gitkeep
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
