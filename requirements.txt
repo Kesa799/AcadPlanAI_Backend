@@ -24,7 +24,6 @@ pydantic==2.10.4
 pydantic-settings==2.7.0
 
 # ==========================================
-# Optional / Inactive Services (Not used in the simplified backend)
+# PDF & Word Export
 # ==========================================
-# openai==1.59.9          # Used in app/services/ai_service.py (not active)
-# reportlab==4.2.5        # Used in app/services/export_service.py (not active)
+reportlab==4.2.5

@@ -43,11 +43,13 @@ class UpdateCDPRequest(BaseModel):
 # ============ RESPONSE SCHEMAS ============
 
 class SyllabusResponse(BaseModel):
-    """Response for syllabus upload"""
+    """Response for syllabus upload — matches what the frontend expects"""
     id: int
     filename: str
     status: str  # uploaded, processing, completed, failed
     upload_date: datetime
+    courseId: Optional[str] = None
+    nextRoute: Optional[str] = None
     word_count: Optional[int] = None
     
     class Config:
@@ -67,8 +69,10 @@ class Topic(BaseModel):
     
     @validator('duration')
     def validate_duration(cls, v):
+        if v is None:
+            return v
         pattern = r'^\d+-\d+-\d+$'
-        if not re.match(pattern, v):
+        if not re.match(pattern, str(v)):
             raise ValueError("Duration must be in L-T-P format (e.g., 2-0-1)")
         return v
 
@@ -76,14 +80,7 @@ class WeekPlan(BaseModel):
     """Weekly plan structure"""
     week: int = Field(..., description="Week number", ge=1, le=52)
     topics: List[Topic] = Field(..., description="Topics covered this week")
-    total_hours: str = Field(..., description="Total L-T-P hours for the week")
-    
-    @validator('total_hours')
-    def validate_total_hours(cls, v):
-        pattern = r'^\d+-\d+-\d+$'
-        if not re.match(pattern, v):
-            raise ValueError("Total hours must be in L-T-P format (e.g., 4-0-2)")
-        return v
+    total_hours: Optional[str] = Field(None, description="Total L-T-P hours for the week")
 
 class CourseOutcome(BaseModel):
     """Course Outcome (CO)"""
@@ -104,8 +101,8 @@ class ProgramOutcome(BaseModel):
     
     @validator('id')
     def validate_po_id(cls, v):
-        if not v.startswith('PO'):
-            raise ValueError("PO ID must start with 'PO'")
+        if not v.startswith('PO') and not v.startswith('PSO'):
+            raise ValueError("PO ID must start with 'PO' or 'PSO'")
         return v
 
 class EvaluationScheme(BaseModel):
@@ -123,7 +120,7 @@ class Textbook(BaseModel):
     year: Optional[int] = None
 
 class CDPData(BaseModel):
-    """Complete CDP data structure"""
+    """Complete CDP data structure (backend internal representation)"""
     # Basic Info
     course_name: str = Field(..., description="Course name")
     course_code: str = Field(..., description="Course code")
@@ -160,7 +157,7 @@ class CDPData(BaseModel):
         return v
 
 class CDPResponse(BaseModel):
-    """Response for CDP operations"""
+    """Response for CDP operations — internal backend shape"""
     id: int
     syllabus_id: int
     course_name: str
@@ -175,17 +172,79 @@ class CDPResponse(BaseModel):
     class Config:
         from_attributes = True
 
-class CO_PO_MappingResponse(BaseModel):
-    """Response for CO-PO mapping"""
-    id: int
-    cdp_id: int
-    co_id: str
-    po_id: str
-    affinity_score: float
-    mapping_data: Dict[str, Any]
-    
-    class Config:
-        from_attributes = True
+# ============ FRONTEND-COMPATIBLE RESPONSE SCHEMAS ============
+
+class CourseMetadata(BaseModel):
+    """Course metadata as the frontend expects it"""
+    code: Optional[str] = None
+    name: Optional[str] = None
+    academicYear: Optional[str] = None
+    courseMentor: Optional[str] = None
+    preRequisites: Optional[str] = None
+    credits: Dict[str, Any] = Field(default_factory=dict)
+
+class FrontendCourseOutcome(BaseModel):
+    id: str
+    description: str
+
+class CoPoMappingRow(BaseModel):
+    co: str
+    po1: Any = "-"
+    po2: Any = "-"
+    po3: Any = "-"
+    po4: Any = "-"
+    po5: Any = "-"
+    po6: Any = "-"
+    po7: Any = "-"
+    po8: Any = "-"
+    po9: Any = "-"
+    po10: Any = "-"
+    po11: Any = "-"
+    po12: Any = "-"
+    pso1: Any = "-"
+    pso2: Any = "-"
+
+class LecturePlanRow(BaseModel):
+    unit: Any = ""
+    classPeriod: str = ""
+    topic: str = ""
+    modeOfTeaching: str = ""
+    inClassActivity: str = ""
+    outClassActivity: str = ""
+    coMapping: List[str] = Field(default_factory=list)
+    reference: List[str] = Field(default_factory=list)
+
+class EvalComponent(BaseModel):
+    name: str
+    marks: int = 0
+    type: str = "Internal"
+
+class ThresholdRow(BaseModel):
+    level: int
+    targetPercentage: int
+    studentPercentage: int
+
+class EvaluationAndGrading(BaseModel):
+    totalMarks: int = 100
+    components: List[EvalComponent] = Field(default_factory=list)
+    threshold: List[ThresholdRow] = Field(default_factory=list)
+
+class FrontendCdpPlan(BaseModel):
+    """The full CDP plan shape the React frontend expects"""
+    status: str = "success"
+    courseMetadata: CourseMetadata = Field(default_factory=CourseMetadata)
+    courseOutcomes: List[FrontendCourseOutcome] = Field(default_factory=list)
+    coPoMappings: List[Dict[str, Any]] = Field(default_factory=list)
+    lecturePlan: List[LecturePlanRow] = Field(default_factory=list)
+    evaluationAndGrading: EvaluationAndGrading = Field(default_factory=EvaluationAndGrading)
+
+class CoPoMatrixResponse(BaseModel):
+    """Response shape for the CO-PO matrix dashboard"""
+    course: Dict[str, Any] = Field(default_factory=dict)
+    cos: List[str] = Field(default_factory=list)
+    pos: List[str] = Field(default_factory=list)
+    options: List[str] = Field(default_factory=lambda: ["-", "1", "2", "3"])
+    matrix: List[List[Any]] = Field(default_factory=list)
 
 # ============ ERROR RESPONSES ============
 

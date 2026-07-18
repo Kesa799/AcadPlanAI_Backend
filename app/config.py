@@ -8,23 +8,22 @@ class Settings(BaseSettings):
     APP_NAME: str = "AcadPlan AI Backend"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
-    
-    # Define the project root explicitly to avoid path resolution issues
-    # Using Path.resolve() ensures it works reliably on Windows
-    BASE_DIR: Path = Path(r"C:\Users\Kesanadhini\AcadPlan-Backend").resolve()
-    
-    # Paths (using the / operator for clean, platform-independent joins)
+
+    # Auto-detect project root from this file's location (app/config.py -> repo root)
+    BASE_DIR: Path = Path(__file__).resolve().parent.parent
+
+    # Paths
     UPLOAD_DIR: Path = BASE_DIR / "uploads"
     OUTPUT_DIR: Path = BASE_DIR / "outputs"
     MAX_FILE_SIZE: int = 10485760  # 10MB
-    
+
     # Database
     DATABASE_URL: str = f"sqlite:///{(BASE_DIR / 'acadplan.db')}"
-    
+
     # API Keys
     OPENAI_API_KEY: Optional[str] = None
     GROQ_API_KEY: Optional[str] = None
-    
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
@@ -33,7 +32,6 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Create directories if they don't exist
-# We convert the Path object to a string for os.makedirs
 os.makedirs(str(settings.UPLOAD_DIR), exist_ok=True)
 os.makedirs(str(settings.OUTPUT_DIR), exist_ok=True)
 

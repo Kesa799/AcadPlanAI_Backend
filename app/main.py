@@ -6,8 +6,6 @@ import os
 from app.config import settings
 from app.api.endpoints import router
 
-from app.config import settings
-
 # Print paths when server starts
 print("=" * 50)
 print("ACADPLAN AI PATHS:")
@@ -32,22 +30,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(router, prefix="/api/v1")
+# Include routers — prefix matches what the React frontend expects (/api/...)
+app.include_router(router, prefix="/api")
 
 @app.get("/")
 async def root():
     return {
         "message": f"Welcome to {settings.APP_NAME} v{settings.APP_VERSION}",
         "docs": "/docs",
-        "health": "/api/v1/health"
+        "health": "/api/health"
     }
 
 if __name__ == "__main__":
-    # Windows: Use host 127.0.0.1 or 0.0.0.0
     uvicorn.run(
         "app.main:app",
-        host="127.0.0.1",  # Windows compatible
+        host="127.0.0.1",
         port=8000,
         reload=True
     )

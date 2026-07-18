@@ -19,6 +19,7 @@ class ExportService:
     def __init__(self):
         self.output_dir = settings.OUTPUT_DIR
         os.makedirs(self.output_dir, exist_ok=True)
+        self.styles = getSampleStyleSheet()
 
     def generate_json(self, cdp) -> str:
         """Generate a JSON file from CDP data."""
@@ -41,8 +42,7 @@ class ExportService:
         with open(output_path, "w", encoding="utf-8") as file:
             json.dump(export_data, file, indent=2, ensure_ascii=False)
 
-        return output_path
-        self.styles = getSampleStyleSheet()
+        return output_path
     
     # ============ PDF GENERATION (COMPLETE) ============
     def generate_pdf(self, cdp) -> str:
